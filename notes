@@ -1,0 +1,1960 @@
+/* Sams Teach Yourself SQL in 10 minutes per day
+
+https://forta.com/books/0135182794/challenges/
+
+CHAPTER 3
+
+CHALLENGES
+SELECT cust_name
+FROM Customers
+ORDER BY cust_name DESC; 
+
+SELECT order_num, cust_id
+FROM Orders
+ORDER BY cust_id, order_date DESC;
+
+SELECT quantity, item_price
+FROM OrderItems
+ORDER BY quantity DESC, item_price DESC;
+
+CHAPTER 4: FILTERTING DATA
+You cannot simply check if "value = NULL". You need to check 
+WHERE [field] is NULL
+
+many DBMS's offer advanced filtering options, check these!
+
+rows with NULL in the filter column are not returned when searching for matches or nonmatches. 
+
+CHALLENGES
+
+SELECT * from Products;
+
+SELECT prod_id, prod_name
+FROM Products
+WHERE prod_price = 9.49;
+
+SELECT prod_id, prod_name
+FROM Products
+WHERE prod_price > 9;
+
+SELECT DISTINCT  order_num
+FROM OrderItems
+WHERE quantity > 100;
+
+SELECT prod_name, prod_price
+FROM Products
+WHERE prod_price BETWEEN 3 AND 6;
+
+CHAPTER 5 ADVANCED DATA FILTERING
+
+term: operator. a special keyword used to join or change clauses within a where clause. Also known as logical operators.ALTER
+
+term: AND. A keyword used in a WHERE clause to specify that only rows matching all the specified conditions should be retrieved.
+term: OR. the opposite of and.
+
+NOTE: if you want to use AND and OR in a single clause, group the statements with parenthesis
+
+term:IN. an operator used to specify a range of conditions, any of which can be matched. takes a comma-delimited list of valid values, which must be
+enclosed in parenthesis. This is a cleaner way to do a long list of ORs.ALTER
+
+term:NOT. a keyword in the WHERE clause to negate a condition.
+
+CHALLENGES
+
+SELECT * FROM Vendors;
+
+SELECT vend_name
+FROM Vendors
+WHERE vend_country = 'USA' AND vend_state = 'CA';
+
+SELECT * FROM OrderItems;
+
+SELECT order_num, prod_id, quantity
+FROM OrderItems
+WHERE (prod_id='BR01' OR prod_id='BR02' OR prod_id='BR03')
+AND quantity >=100;
+
+alternatively:
+
+SELECT order_num, prod_id, quantity
+FROM OrderItems
+WHERE prod_id IN ('BR01', 'BR02', 'BR03') AND quantity >= 100;
+
+Select * FROM Products;
+
+SELECT prod_name, prod_price
+FROM Products
+WHERE prod_price >=3 AND prod_price <= 6
+ORDER BY prod_price;
+
+CHAPTER 6: USING WILDCARD FILTERING
+
+WILDCARD: special charachters used to match parts of a value.
+
+Wildcard can be used for pattern matching, such as searching for all product names that contain the word "bean bag"
+
+SEARCH PATTERN: a search made up of literal text, wildcard charachters, or any combination of the two.
+
+PREDICATE: When an operator is not an operator, it is a predicate. Technically a predicate is not an operator, but they are used the same. Watch out for this in SQL documentation.ALTER
+
+LIKE: an operator used for pattern matching
+
+The most common type of wildcard is the % operator. BE AWARE: wildcards are case sensitive.
+
+This search will search for all strings matching "fish" any value that starts with "fish will be retrieved, but maybe not ones that start with "Fish"
+
+THE % WILDCARD
+
+SELECT prod_id, prod_name
+FROM Products
+WHERE prod_name LIKE 'fish%;
+
+Multiple wildcards can be used, like so
+
+SELECT prod_id, prod_name
+FROM Products
+WHERE prod_name LIKE '%bean bag%';
+
+this will match any value that contains the text "bean bag" anywhere within it, regardless of any characters before or after that text.
+
+You can also use wildcards in the middle of a search pattern, although this is rare. this will find anything that starts with 'F; and ends in 'y'
+
+WHERE prod_name LIKE 'F%y';
+
+Note: some DBs add trailing spaces if it expects 50 chars and there are only 3, in which case the above may not work.
+a better solution is to use 'F%y%', although this is a niche case.
+
+NULLs are not searched using %
+
+THE UNDERSCORE (__) WILDCARD
+Note: this is not available in DB2
+
+_ is just like %, except it looks for a single character
+WHERE prod_name LIKE '__ inch teddy bear';
+
+^^the above will return 12 inch teddy bear and 18 inch teddy bear, but not 8 inch teddy bear.
+
+The following statement will return all 3:
+
+WHERE prod_)name LIKE '% inch teddy bear';
+
+THE BRACKETS ([]) WILDCARD
+The brackets wildcard is used to specify a set of characters, any one of which must match a character in the specified position (the location of the wildcard)
+
+Note: Unlike the wildcards thus far, brackets and sets are not supported by all DBMSs. Sets are supported in Microsoft SQL Server, but are
+not supported in MySQL, Oracle, DB2, and SQLite. Consult documentation if unsure.ALTER
+
+SELECT cust_contact
+FROM Customers
+WHERE cust_contact LIKE '[JM]%'
+ORDER BY cust_contact;
+
+^^ does not work, for demonstration only.
+
+Tips For Using Wildcards:
+-Don't overuse wildcards. If another operator will do, use it instead.
+-When you do use wildcards, try not to use them at the beginning of the search battern unless absolutely necessary.
+Search patterns that begin with wildcards are the slowest to process
+-Pay careful attention to the placement of the wildcard symbols. If they are misplaced, you might not return the data you intended.
+
+CHALLENGES
+
+SELECT * FROM Products;
+
+Write a SQL statement to retrieve the product name (prod_name) and description (prod_desc) from the Products table, returning only products where the word toy is in the description.
+
+SELECT prod_name, prod_desc
+FROM Products
+WHERE prod_desc LIKE '%toy%';
+
+Now let’s flip things around. Write a SQL statement to retrieve the product name (prod_name) and description (prod_desc) from the Products table, returning only products
+where the word toy doesn’t appear in the description. And this time, sort the results by product name.
+
+SELECT prod_name, prod_desc
+FROM Products
+WHERE NOT prod_desc LIKE '%toy%'
+ORDER BY prod_name;
+
+or
+SELECT prod_name, prod_desc
+FROM Products
+WHERE  prod_desc NOT LIKE '%toy%'
+ORDER BY prod_name;
+
+Write a SQL statement to retrieve the product name (prod_name) and description (prod_desc) from the Products table, returning only products where both the words toy and carrots appear in the description.
+ There are a couple of ways to do this, but for this challenge use AND and two LIKE comparisons.
+
+SELECT prod_name, prod_desc
+FROM Products
+WHERE prod_desc LIKE '%toy%' AND prod_desc LIKE '%carrots%';
+
+This next one is a little trickier. I didn’t show you this syntax specifically, but see if you can figure it out anyway based on what you have learned thus far. Write a SQL 
+statement to retrieve the product name (prod_name) and description (prod_desc) from the Products table, returning only products where both the words toy and carrots appear in the
+ description in that order (the word toy before the word carrots). 
+Here’s a hint, you’ll only need one LIKE with 3 % symbols to do this.
+
+SELECT prod_name, prod_desc
+FROM Products
+WHERE prod_desc LIKE '%toy%carrots%'
+
+
+LESSON 7: CREATING CALCULATED FIELDS
+
+Calculated fields do not exist in database tables, they are instead created on the fly within a SQL SELECT statement
+
+FIELD: means the same thing as a column, but typically used to refer to calculated fields.
+
+Only the DB knows the difference between a column and a calculated field. From the Apps perspective, they are the same.
+
+CONCATENATE: Joining values together to form a single long value.
+
+Depending on what DB you are using, concatenating is done with either a "+" or a "||".
+For MySQL you need to use CONCAT
+
+SELECT Concat(vend_name, ' (', vend_country, ')')
+FROM Vendors
+ORDER BY vend_name;
+
+the above ^^ concatenates the vend_name column, a string containing a space and open parens, the country stored in the vend_country column,
+and a string containing the close parenthesis
+
+Sometimes this leads to extra spaces. Use:
+RTRIM() to trim spaces to the right
+LTRIM() to trim spaces to the left, and
+TRIM() to trim both.
+
+ALIAS: another name for a column. Calculated fields have no name by default, so using the AS keyword to give them a name is helpful for the end user.
+
+SELECT Concat(RTRIM(vend_name), ' (', RTRIM(vend_country), ')')
+AS vend_title
+FROM Vendors
+ORDER BY vend_name;
+
+aliases are sometimes called "derived columns"
+
+
+Performing Mathematical Calculations
+
+SELECT prod_id, quantity, item_price
+FROM OrderItems
+WHERE order_num = 2008;
+
+^ this will find all the orders from 2008
+
+SELECT prod_id,
+ quantity,
+ itemPprice,
+ quantity*item_price AS expanded_price
+ FROM OrderItems
+ WHERE order_num = 30008
+ 
+ ^ this calculated field (expanded_price) is treated the same as any other column. 
+ 
+ SQL supports + - / *
+ 
+ NOTE: SELECT is an excellent way to test calculations and trims
+ 
+ CHALLENGES
+ 
+ SELECT vend_id,
+ vend_name AS vname,
+ vend_address AS vaddress,
+ vend_city AS vcity
+ ORDER BY vend_name;
+
+ SELECT vend_id,
+ vend_name AS vname,
+ vend_address AS vaddress,
+ vend_city AS vcity
+ FROM Vendors
+ ORDER BY vend_name;
+
+
+SELECT prod_id,
+prod_price,
+prod_price * .9 AS sale_price
+FROM Products
+
+
+LESSON 8: USING DATA MANIPULATION FUNCTIONS
+
+Functions are ubiquitous in programming and are used in SQL as well.
+An example of a function is RTRIM()
+
+NOTE: The problem with functions is that they tend to be highly DBMS specific. 
+Few functions are supported identically in each DBMS.
+
+SQL Functions are NOT PORTABLE. This means that a function that works on one implementation may not work on another. 
+
+With code portability in mind, some SQL programmers opt not to use any implementation-specific features.
+This is not always the best thing for application performance.
+
+There is no right or wrong answer to the question of "Should you use functions?". 
+It depends on whether you need portabilitiy or performance.
+
+Using Functions:
+
+Most SQL implementations support the following:
+
+Text Functions used to manipulate strings, such as trimming, padding values, and converting values to upper and lowercase.
+
+Numeric functions such as for returning absolute values or performing algebraic calculations
+
+Date and time functions are used to manipulate date and time values, such as checking date validity and returning differences between dates.
+
+System Functions used to return information specific to the DBMS being used, such as user login info
+
+Text Functions:
+
+SELECT vend_name, UPPER(vend_name) AS vend_name_upcase
+FROM Vendors
+ORDER BY vend_name;
+
+NOTE ^^ as seen above, sql FUNCTIONS ARE NOT CASE SENSITIVE, SO YOU CAN USE UPPER(), upper(), Upper(). 
+Be consistent tho, as otherwise it will be unreadable. 
+
+Commonly Used Text Manipulation Functions
+
+LEFT() / substring: Returns characters from left of string
+
+LENGTH() / DATALENGTH() / LEN: Returns the length of the string
+
+LOWER(): Converts string to lowercase. 
+
+LTRIM(): Trims white space from left of string.
+
+RIGHT(): Trims white space from right of string
+
+SUBSTR() / SUBSTRING(): Extracts part of a string
+
+SOUNDEX() / Returns a string's SOUNDEX value
+
+UPPER(): Converts string to uppercase
+
+SOUNDEX is an algorithm that converts any string of text into alphanumeric pattern describing the phonetic representation of that text.
+ SOUNDEX takes into account similar sounding characters that have been typed. Most DBMS's support it. 
+ 
+If you tried to select 'Michael Green', but when it was put into the DBMS it was put in as Michelle Green, an exact search wouldn't find it.
+But SOUNDEX would! See pg 73 for details.
+
+Date and Time Manipulation Functions
+
+Date and times are stored in tables using datatypes, and each DBMS uses its own special varieties. Date and time values are stored in special formats so that they may be sorted quickly.
+
+The internal format used to store dates and times is usually of no use to your applications,
+ and so date and time functions are almost always used to read, expand, and manipulate DTs. 
+ 
+ To retrieve a list of all orders made in 2020 in SQL Server, do the following:
+ 
+ SELECT order_num
+ FROM Orders
+ WHERE DATEPART(yy, order_date) + 2020;
+ 
+ but this changes wildly from DBMS to DBMS. Google how to use dates for the DBMS you are using.
+ 
+ Numeric Manipulation Functions. 
+ 
+ These are the most shared across DBMSs. These are the most common examples:
+ 
+ ABS(): Returns a number's absolute value
+ 
+ EXP() Returns the exponential value of a specific number
+ 
+ PI() Returns the value of pi.
+ 
+ 
+ SQRT() Returns the Square root of a specific number
+ 
+ COS() Returns the trigonometric cosine of a specified angle
+ 
+ SIN() Returns the trigonometric sine of a specified angle
+  
+ TAN() Returns the trigonometric tangent of a specified angle
+ 
+ CHALLENGES
+ 
+ user_login = first two char of cust contact, first three char of cust_city, all uppercase
+ 
+ SELECT cust_id,
+cust_name AS customer_name,
+UPPER(CONCAT(LEFT(cust_contact, 2) , LEFT(cust_city, 3))) AS user_login
+FROM Customers;
+
+SELECT * FROM Orders;
+
+SELECT order_num,
+order_date
+FROM Orders
+WHERE MONTH(order_date) = 1 AND YEAR(order_date) = 2020
+ORDER BY order_date;
+
+LESSON 9: SUMMARIZING DATA
+
+It is often necessary to summarize data without actually retrieving it all, for this we use aggregate functions. 
+
+ag functions do things like:
+
+determining the number of rows in a table, or the # of rows that meet some condition or have a specific value. 
+
+Obtaining the sum of a set of rows
+
+Finding the highest, lowes, and average values in a table coulumn.
+
+There are 5 Aggregate Functions, and they are pretty standard across DBMSs:
+
+AVG() Returns a column's average value
+^^Nulls are ignored by this.
+AVG() can only be used to determine the average of a specific numeric column, which must be specified as a function parameter. 
+If you want the average of multiple columns, you must use multiple AVG() functions. 
+The exception is when returning a single value that is calculated from multiple columns
+
+COUNT() Returns the number of rows in a column
+^^ This can be used in 2 ways.
+COUNT(*) counts the number of rows in a table, whether the columns contain values or nulls. 
+COUNT(Column) counts the number of rows that have values in a specific column, ignores nulls.
+
+MAX() Returns a column's highest value
+^^Many (but not all) DBMSs allow MAX() to check all columns, including textual.
+ When used with textual data, MAX() returns the row that would be the last if the data were sorted by that column.
+ Ignores nulls.
+
+MIN() Returns a column's lowest value
+
+SUM() Returns the sum of a column's values
+ ^^ works on calculated values as well. 
+ SELECT SUM(item_price*quantity) AS  total_price
+ NULL columns are ignored.
+ 
+ Aggregates On Distinct Values:
+ The five ag functions can be used in two ways:
+ To perform calculations on all rows, specify the ALL argument or specify no argument, because ALL is the default behavior
+ 
+ To include only unique values, specify the DISTINCT argument. 
+ 
+ SELECT AVG(DISTINCT prod_price) AS avg_price
+ FROM Products
+ WHERE vend_id = 'DLL01;
+ 
+ DISTINCT cannot be used with COUNT(*). It cannot be used with a calculated field or an expression. 
+ 
+ Multiple aggregate functions can be combined into single statements. Behold!
+ 
+ SLECT COUNT(*) AS num_items,
+ MIN(prod_price) AS price_min,
+ MAX(prod_price) AS price_max,
+ AVG(prod_price) AS price_avg
+ FROM Products;
+ 
+ NOTE: When specifying alias names to contain the results of an ag function, do not use the actual column names in the table.
+ This will obscure error messages and and many DBMSs do not support this and will throw errors. Bad practice!
+ 
+ CHALLENGES
+ 
+ SELECT SUM(quantity) AS items_sold
+FROM OrderItems;
+
+ SELECT SUM(quantity) AS items_sold
+FROM OrderItems
+WHERE prod_id = 'BR01'
+
+SELECT MAX(prod_price) AS max_price
+FROM Products
+WHERE prod_price < 10; 
+
+
+LESSON 10: GROUPING DATA
+
+This lesson involves the GROUP BY clause, and the HAVING clause
+
+Grouping allows you to divide data into logical sets, so that you can do aggregate calculations on each group
+An example:
+
+SELECT vend_id, COUNT(*) AS num_prods
+FROM Products
+GROUP BY vend_id;
+
+OUTPUT
+vend_id  num_prods
+-------  ---------
+BRS01    3
+DLL01    4
+FNG01    2
+
+^^This outputs the number of num_prods per vend_id
+
+Notes On GROUP BY:
+GROUP BY  can contain as many columns as you want. This enables you to nest groups,
+providing you with more granular control over how data is grouped. 
+
+If you have nested groups in your GROUP BY clause, data is summarized at the last specified group. IE all columns specified 
+are evaluated together when grouping is established, so you won't gbet data back for each individual column level.
+
+Every column listed in GROUP BY muyst be a retrieved column or a valid expression ( but not a ag function). 
+If an expression is used in the SELECT, that same expression must be specied in GROUP BY. Aliases cannot be used. 
+
+Most SQL implementations do not allow GROUP BY columns with variable length datatypes, such as text or memo fields. 
+
+Aside from the aggregate calculation statements, every column in your SELECT statement must be present in the GROUP BY clause. 
+
+If the grouping column contains a row with a NULL value, NULL will be returned as a group. 
+If there are multiple rows with NULL values, they'll all be grouped together.
+
+The GROUP BY clause must come after any WHERE clause and before any ORDER BY clause.
+
+ 
+ Filtering Groups:
+ 
+ The WHERE clause is used to filter specific rows. If you wanted a list of all customers who have made at least two orders, it cannot help u. 
+ HAVING is similar to where, but is used for groups. 
+ 
+ SELECT cust_id, COUNT(*) AS orders
+ FROM Orders
+ GROUP_BY cust_id
+ HAVING COUNT(*) >=2;
+ 
+ WHERE filters data before it is grouped.  HAVING filters data after it is grouped. Rows that have been filtered by a WHERE
+ will not be included in the grouping. 
+ 
+ Sometimes you will need both. Lets say you wanted all vendors who have two or more products priced at 4 or more:
+ SELECT vend_id, COUNT(*) AS num_prods
+ FROM Products
+ WHERE prod_price >= 4
+ GROUP BY vend_id
+ HAVING COUNT(*) >= 2;
+ 
+ ORDER BY and GROUP BY are very different.
+ 
+ ORDER BY:
+ Sorts generated output
+ 
+ Any columns, even columns not selected, may be used
+ 
+ Never required
+ 
+ GROUP BY
+ Groups rows. The output might not be in group order. 
+ 
+ Only selected columns or expressions columns may be used, and every selected column expression must be used. 
+ 
+ Required if using columns or expressions with ag functions. 
+ 
+ NOTE:
+ As a rule, anytime you use a GROUP BY CLAUSE, you should also specify an ORDER BY  clause. That is the only way to ensure that data will be sorted properly. 
+ Never rely on GROUP BY  to sort your data. 
+ 
+ This is the order in which clauses should be used: 
+ SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY 
+ See page 96 for more details. 
+ 
+ CHALLENGES:
+
+SELECT order_num,
+COUNT(*) AS order_lines
+FROM OrderItems
+GROUP BY order_num
+ORDER BY order_lines;
+
+SELECT vend_id,
+MIN(prod_price) AS cheapest_item
+FROM Products
+GROUP BY vend_id
+ORDER BY cheapest_item;
+
+SELECT order_num
+FROM OrderItems
+GROUP BY order_num
+HAVING SUM(quantity) >= 100
+ORDER BY order_num;
+
+SELECT order_num,
+SUM(item_price * quantity) AS total_price
+FROM OrderItems
+GROUP BY order_num
+HAVING SUM(quantity * item_price) >= 1000
+ORDER BY order_num;
+
+LESSON 11: WORKING WITH SUBQUERIES
+
+A Subquery  is a query that is embeddinto into other queries
+
+SELECT cust_id
+FROM Orders
+WHERE order_num IN (SELECT order_num
+				FROM OrderItems
+				WHERE prod id =  'RGAN01');
+
+Subqueries are always processed starting with the innermost SELECT statement and working outward.
+When the preceding SELECT statement is processed, the DBMS actually performs two operations. 
+First the innermost on that returns 20007 and 20008. Those two values are then passed to the WHERE clause of the outer query in the comma delimited format 
+required by the IN operator. The outer query now becomes
+
+SELECT cust_id FROM orders WHERE order_num IN (20007, 20008)
+
+TIP: nested subqueries can be difficult to read and debug, especially as they grow in complexity. 
+Breaking up the queries over multiple lines and indenting the lines appropriately as shown above can greatly simplify working with subqueires. 
+Another example:
+
+SELECT cust_name, cust_contact
+FROM Customers
+WHERE cust_id IN (SELECT cust_id
+					FROM Orders
+                    WHERE order_num IN (SELECT order_num
+										FROM OrderItems
+                                        WHERE prod_id = 'RGAN01'));
+                                        
+Note: Subquery select statements can only retrieve a single column. Attempting to retrieve multiple columns will return an error. 
+
+Using subqueries is not always effiecient. Sometimes it is more efficient to join a table. 
+
+Using Subqueries as Calculated Fields:
+
+Let's say you want to count the total number of orders for each customer, use COUNT* as a subquery
+
+SELECT cust_name,
+		cust_state,
+        (SELECT COUNT(*)
+        FROM Orders
+        WHERE Orders.cust_id = Customers.cust_id) AS orders
+FROM Customers
+ORDER BY cust_name;
+
+NOTE: When dealing with different tables, use dot notatation to specify which table is being referenced. 
+
+The most common uses of subqueries are in WHERE clause IN operators and for populating calculated columns. 
+
+NOTE: use IN when you would normally use = for subqueries
+Also it helps to write the subquery first
+
+CHALLENGES:
+
+SELECT cust_id
+FROM Orders
+WHERE Orders.order_num IN   (SELECT OrderItems.order_num 
+							FROM OrderItems
+							WHERE item_price >= 10);
+                            
+SELECT cust_id,
+order_date
+FROM Orders
+WHERE order_num IN   (SELECT order_num
+					FROM OrderItems 
+					WHERE prod_id = 'BR01')
+ORDER BY order_date;
+
+SELECT cust_email
+FROM Customers
+WHERE cust_id IN (SELECT cust_id
+				FROM Orders
+				WHERE Orders.order_num IN   (SELECT OrderItems.order_num 
+											FROM OrderItems
+											WHERE item_price >= 10));
+
+
+SELECT * FROM OrderItems;
+
+SELECT cust_id,
+	(SELECT SUM(quantity * item_price)
+    FROM OrderItems
+    WHERE order_num IN (SELECT order_num
+						FROM Orders 
+                        WHERE Orders.cust_id = Customers.cust_id)) AS total_ordered
+FROM Customers
+ORDER BY total_ordered DESC;
+
+prod_id is in OrderItems and Products
+
+SELECT prod_name,
+	(SELECT SUM(quantity)
+	FROM OrderItems
+	WHERE Products.prod_id = OrderItems.prod_id) AS quant_sold
+FROM Products;
+
+LESSON 12: JOINING TABLES
+
+There should be one table for every kind of record. If you have a table of vendors and a table of products, you should keep them separate and join them with tables. 
+
+NOTE:
+This allows relational DBs to scale much better than non-relational DBs. 
+Scaling means handle an increasing load without failing
+
+A join is a mechanism used to associate, or join, tables within a SELECT statement 
+
+A join is not a physical entity, it does not exist in the actual database. a join exists as needed, and only exists for as long as the query. 
+If a primary key is not correctly accessible, it cannot be joined. Many DBMSs can be set to enforce Referential Integrity, meaning only valid data will be accepted. 
+This is highly recommended for Primary Keys. 
+
+Join example 
+
+SELECT vend_name, prod_name, prod_price
+FROM Vendors, Products
+WHERE Vendors.vend_id = Products.vend_id;
+
+Use fully qualified names when there is any ambiguity about which table a column is from. 
+
+Columns are joined in the WHERE clause because joins happen on the fly and you must define the relationship between them yourself
+
+Terms for joins without a WHERE clause are: Cross Joints, Cartesian Joins. These suck, don't use them. 
+
+The above join is called an inner join, or equijoin. When a specific type of join is not specified, this is the default join. 
+The following code is functionally similar to using WHERE
+
+SELECT vend_name, prod_name, prod_price
+FROM Vendors
+INNER JOIN Products ON Vendors.vend_id = Products.vend_id;
+
+Technically the second format is more standard, but you should understand both. 
+
+Joining Multiple Tables 
+
+There is no limit on the number of tables that may be joined in a SELECT statement. 
+The basic rules remain the same. First, list out all the tables, then define the relationship between each. 
+Example:
+
+SELECT prod_name, vend_name, prod_price, quantity
+FROM OrderItems, Products, Vendors
+WHERE Products.vend_id = Vendors.vend_id
+AND OrderItems.prod_id = Products.prod_id
+AND order_num = 20007;
+
+CAUTION: DBMSs process joins at runtime relating to each table as specified. This can become very resource intensive. 
+Be mindful not to join unneccesarily, as the more you join the more performance will suffer. 
+SQL has no limit on the number of joins you can do, but many DBMSs do. 
+
+Joins can often do the same function as subqueries, but more performantly. 
+
+This subquery:
+
+SELECT cust_name, cust_contact
+FROM Customers
+WHERE cust_id IN (SELECT cust_id
+					FROM Orders
+                    WHERE order_num IN (SELECT order_num
+										FROM OrderItems
+                                        WHERE prod_id = 'RGAN01'));
+
+Accomplishes the same thing as this join
+SELECT cust_name, cust_contact
+FROM Customers, Orders, OrderItems
+WHERE Customers.cust_id  = Orders.cust_id
+AND OrderItems.order_num = Orders.order_num
+AND prod_id = 'RGAN01';
+
+There is often more than one way to achieve the same result. Best outcomes depend on use case and DBMS. 
+Experiment to find the best solution! 
+
+Note: Joined columns do not neccessarily have to have the same named Primary Key. 
+
+CHALLENGES:
+
+SELECT Customers.cust_id, order_num 
+FROM Orders, Customers
+WHERE Customers.cust_id = Orders.cust_id
+ORDER BY cust_id, order_num;
+
+^^Equijoin
+
+SELECT Customers.cust_id, order_num 
+FROM Customers
+INNER JOIN Orders ON Orders.cust_id = Customers.cust_id
+ORDER BY cust_id, order_num;
+
+^^Inner Join
+
+SELECT Customers.cust_name,
+Orders.order_num,
+SUM(OrderItems.quantity * OrderItems.item_price) AS OrderTotal 
+FROM Orders, Customers, OrderItems
+WHERE Customers.cust_id = Orders.cust_id
+AND OrderItems.order_num = Orders.order_num
+GROUP BY cust_name, OrderItems.order_num
+ORDER BY cust_name, order_num, OrderTotal;
+
+SELECT cust_id,
+order_date,
+prod_id
+FROM Orders, OrderItems
+WHERE OrderItems.order_num = Orders.order_num
+AND OrderItems.prod_id = 'BR01'
+ORDER BY order_date;
+
+SELECT Customers.cust_id,
+order_date,
+cust_email,
+prod_id
+FROM Customers
+INNER JOIN Orders ON Orders.cust_id = Customers.cust_id
+INNER JOIN OrderItems ON OrderItems.order_num = Orders.order_num 
+WHERE OrderItems.prod_id = 'BR01';
+
+SELECT Customers.cust_name,
+Customers.cust_id,
+Orders.order_num,
+SUM(OrderItems.item_price * quantity) AS total
+FROM Customers, Orders, OrderItems
+WHERE Customers.cust_id = Orders.cust_id
+AND OrderItems.order_num = Orders.order_num
+GROUP BY order_num
+HAVING total >= 1000;
+
+LESSON 13: ADVANCED JOINS
+
+Self Joins:
+
+Here we want to send a mailing to all customer contacts who work for the same company that Jim Jones works. This query requires that you first find out
+which company Jim Jones works for and next which customers work for that company. 
+
+This can be accomplished with a subquery:
+
+SELECT cust_id, cust_name, cust_contact
+FROM Customers
+WHERE cust_name = (SELECT
+					FROM Customers
+                    WHERE cust_contact = 'Jim Jones');
+                    
+Or it can be accomplished with a Self Join:
+
+SELECT c1.cust_id, c1.cust_name, c1.cust_contact
+FROM Customers AS c1, Customers as c2
+WHERE c1.cust_name = c2.cust_name
+AND c2.cust_contact = 'Jim Jones'
+
+Natural Joins
+
+Two joined tables will always share at least one column, the primary key. An Inner Join will return the duplicated column. 
+
+A Natural Join is the same as an Inner join, but with the duplicates removed. 
+
+SELECT C.*,
+ O.order_num,
+ O.order_date
+ OI.prod_id
+ OI.quantity,
+ OI.item_price
+ FROM Customers AS C, Orders AS O, OrderItems AS OI
+ WHERE C.cust_id = O.cust_id
+ AND OI.order_num = O.order_num
+ AND prod_id = 'RGAN01'
+ 
+ 
+^^ The wildcard is used in the first table only. The rest are explicitly listed to remove duplicates. 
+
+Outer Joins 
+
+Outer joins are used to include rows that have no related rows. You might use such joins to:
+
+Count how many orders were placed by each customer, including customers who have not made an order yet. 
+
+List all product with order quantities, including products no ordered by anyone. 
+
+Calculate average sale sizes, taking into account customers that have not yet placed an order. 
+
+NOTE: Syntax difference for Outer Joins can vary between DBMSs
+
+This retrieves a list of customers and their orders:
+
+SELECT Customers.cust_id, Orders.order_num
+FROM Customers
+INNER JOIN Orders ON  Customers.cust_id = Orders.cust_id
+
+^^inner join
+
+This retrives all customers including thos who placed no orders:
+
+SELECT Customers.cust_id, Orders.order_num
+FROM Customers
+LEFT OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id
+
+When using OUTER JOIN you must specify LEFT or RIGHT . 
+
+IMPORTANT ************
+The only diff between LEFT and RIGHT Outer Joins is the order of the tables that they are relating. 
+A LEFT OUTER JOIN can be turned into a RIGHT OUTER JOIN simply by reversing the order of the tables specified. 
+It is arbitrary and based solely on convenience. 
+
+Saying LEFT OUTER JOIN says that I need to include ALL relevant records from the table on the left. 
+The table on the right will only return records as they pertain to the records on the left. 
+Entries with nothing are returned as zero.
+
+
+***********************
+
+
+
+A FULL OUTER JOIN retrieves all rows from both tables and relates those that can be related. It includes unrelated rows from both tables. 
+
+SELECT Customers.cust_id, Orders.order_num
+FROM Customers
+FULL OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id;
+
+^^ Note: this does not work on MySQL
+
+Using Joins with Aggregate Functions
+
+You want to retrieve a list of all customers and the number of orders that each has placed:
+
+SELECT Customers.cust_id,
+COUNT (Orders.order_num) as num_ord
+FROM Customers
+INNER JOIN Orders ON Customers.cust_id = Orders.cust_id
+GROUP BY Customers.cust_id;
+
+Another example:
+
+SELECT Customers.cust_id
+COUNT(Orders.order_num) AS num_ord
+FROM Customers
+LEFT OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id
+GROUP BY Customers.cust_id;
+
+Tips for using Joins:
+
+*Pay careful attention to the type of Join being used. 
+Most often you want an Inner Join, but there are valid uses for Outer Joins too.
+
+*Check your DBMS docs for the exact join syntax it supports, they are often different
+
+*Make sure you are using the correct join condition, regardless of the syntax being used.
+
+*Although you may use multiple tables in a join, and even have join types for each, be careful with this.
+ Make sure you test each join separately before putting them together. This will make troubleshooting MUCH easier.
+ 
+SELECT Customers.cust_name,
+Orders.order_num 
+FROM Customers
+JOIN Orders ON Customers.cust_id = Orders.cust_id
+Order BY cust_name;
+
+SELECT Customers.cust_name,
+Orders.order_num 
+FROM Customers
+LEFT OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id
+ORDER BY cust_name;
+
+SELECT Customers.cust_name,
+COUNT(Orders.order_num) AS order_total
+FROM Customers
+LEFT OUTER JOIN Orders ON Customers.cust_id = Orders.cust_id
+GROUP BY cust_name
+ORDER BY cust_name;
+
+SELECT Vendors.vend_id,
+COUNT(Products.prod_id) as prod_count
+FROM Vendors
+LEFT OUTER JOIN Products ON Vendors.vend_id = Products.vend_id
+GROUP BY Vendors.vend_id
+ORDER BY prod_count;
+
+LESSON 14: COMBINING QUERIES
+
+Most queries are made of a single SELECT statement. SQL also allows you to perform multiple queries made of multiple SELECT statements
+
+These are known as Unions, or Compound Queries
+
+There are two scenarios when u would want to use Unions:
+
+> To return similarly structured data from different tables in a single query
+
+> To perform multiple queries against a single table returning the data as one query
+
+TIP: for the most part, using a Union accomplishes the same thing as a single query with multiple WHERE clause conditions. 
+any SELECT statement with multiple WHERE clauses can also be specified as a combined query. 
+
+SQL queries are combined using the UNION operator. 
+
+Using the UNION operator, you can specify multiple SELECT statements, and their results can be combined into a single result set. 
+
+Look at these two individual statements:
+
+SELECT cust_name, cust_contact, cust_email
+FROM Customers
+WHERE cust_state IN ('IL', 'IN', 'MI');
+
+SELECT cust name, cust_contact, cust_email
+FROM Customers
+WHERE cust_name = 'Fun4All';
+
+To combine these two statements with UNION, do the following:
+
+SELECT cust_name, cust_contact, cust_email
+FROM Customers
+WHERE cust_state IN ('IL', 'IN', 'MI')
+UNION
+SELECT cust_name, cust_contact, cust_email
+FROM Customers
+WHERE cust_name = 'Fun4All';
+
+Here is the same query accomplished by using multiple WHERE clauses:
+
+SELECT cust_name, cust_contact, cust_email
+FROM Customers
+WHERE cust_state IN ('IL', 'IN', 'MI')
+
+TIP: There is no standard SQL statement that limits the number of SELECT statements that can be combined with UNION statements. 
+B U T your DBMS might
+
+NOTE: Most good DBMSs use an internal query optimizer to combine the SELECT statements before they are even processed. 
+This means that *in theory* there should be no diff between using UNIONS and multiple WHERE clauses. 
+These query optimizers often do not do a good job. Test different methods yourself to see which is more performant. 
+
+
+UNION Rules:
+
+A UNION must be composed of two or more SELECT statements separated by the word UNION. 
+If you are combining 4 SELECTS there must be 3 UNIONs
+
+Each query in a UNION must contain the same columns, expressions or ag functions.
+Some DBMSs require that they be in the same order. 
+
+Column datatypes must be compatible. They need not be the same name or the exact same type, 
+but they must be of a type that the DBMS can implicitly convert, such as different numeric types or different date types. 
+
+If UNIONS with different names are combined (prod_name and productname), the first name will be the one displayed. 
+The first one is also the only one you need to alias. 
+Use the first name when using ORDER_BY
+
+Including or Elimination Duplicate Rows: 
+
+UNION automatically removes any duplicate rows from query results set. 
+This is standard behavior, same as a WHERE clause. 
+If you want to include duplicate rows use
+
+UNION ALL
+
+UNION ALL returning duplicates is something that WHERE cannot do. 
+
+Sorting: 
+
+You may only use one ORDER BY clause after the final SELECT statement. 
+
+Other Union Types: 
+Some DBMSs support other types of UNION. 
+EXCEPT aka MINUS retrives only the rows that exist in the first table but not in the second. 
+INTERCEPT can be used to retrieve only the rows that exist in both tables. 
+
+However, these are rarely used because both of these things can be accomplished with Joins. 
+
+CHALLENGES:
+
+SELECT prod_id, quantity
+FROM OrderItems
+WHERE quantity = 100
+UNION
+SELECT prod_id, quantity
+FROM OrderItems
+WHERE prod_id LIKE 'BNBG%'
+ORDER BY prod_id;
+
+SELECT prod_id, quantity
+FROM OrderItems
+WHERE quantity = 100 OR prod_id LIKE 'BNBG%'
+ORDER BY prod_id;
+
+SELECT prod_name
+FROM Products
+UNION 
+SELECT cust_name
+FROM Customers
+ORDER BY prod_name;
+
+LESSON 15: INSERTING DATA
+
+INSERT can be used in several ways:
+
+Inserting a single complete row
+
+Inserting a single partial row
+
+Inserting the results of a query
+
+NOTE: some INSERT statements require security priviliges in client/server DBMS's If INSERT is failing this may be why.
+
+Insereting Complete Rows:
+
+Here is a way to do it. A shit way
+
+(((((((
+
+INSERT INTO Customers
+VALUES (1000000006,
+'Toy Land',
+'123 Any Street',
+'New York',
+'NY',
+'11111',
+'USA',
+NULL,
+NULL);
+
+)))))))
+
+The above SQL inserts a new customer into the Customers table. The data being inserted is specified by the VALUES clause. 
+A value must be provided for each column. If a column has no value, NULL should be used, assuming the table allows it. 
+The columns must be populated in the order in which they appear in the table definition. 
+
+TIP: the INTO Keyword:
+For some DBMS's, the INTO keyword is optional. However, it is a best practice to always include it.
+This ensures that your SQL is portable between DBMS's
+
+Although the above ^^ syntax is simple and works, it is NOT SAFE and SHOULD BE AVOIDED. 
+
+This is because:
+* It is highly dependant on the order in which the columns are defined in the table. 
+* It depends on info about that order being redily available. 
+*Even if it is available, there is no guarantee that the columns will be in the exact same order the next time the table is reconstructed. 
+
+Writing SQL statements that depend on specific column ordering is very unsafe. 
+If you write shit this way, it WILL fuck up at some point.
+
+
+This way is much better. It is also more cumbersome, but worth doing:
+
+INSERT INTO Customers   (cust_id,
+						cust_name,
+						cust_address,
+						cust_city,
+						cust_state,
+						cust_zip,
+						cust_country,
+						cust_contact,
+						cust_email)
+Values(1000000007,
+'Toy Land',
+'123 Any Street',
+'New York',
+'NY',
+'11111',
+'USA',
+NULL,
+NULL
+);
+
+This ^^ example does the exact same thing as the previous INSERT statement, but this time the column names are explicityly stated in parens after the table name. 
+When the statement is executed, the DBMS will match each item in the columns list with the value from the VALUES list.
+The second value corresponds to the second column name, and so on. 
+
+Because column names are provided, the VALUES must match the specified column names in the order in which they are specified,
+not neccessarily in the order that the columns appear in the actual table.
+
+The advantage of this is that even if the table layout changes, the INSERT statement will still work correctly. 
+
+TIP: Always Use a Columns List
+As a rule, never use INSERT without explicitly specifying the column list.
+This will greatly increase the probability that your SQL will continue to function in the event that table changes occur. 
+
+CAUTION: Use VALUES carefully 
+Regardless of the INSERT syntax being used, the correct number of VALUES must be specified. If no column names are provided,
+a value must be present for every table column. 
+If column names are provided, a value must be present for each listed column.
+If non is present, an error will be generated, and the row will not be inserted. 
+
+Inserting Partial Rows
+
+The recommended way to use INSERT is to explicitly specify table column names.
+Using this syntax, you can also omit columns. This means you provide values for some columns, but not for others. 
+
+Observe: 
+
+INSERT INTO Customers (cust_id,
+						cust_name,
+						cust_address,
+						cust_city,
+						cust_state,
+						cust_zip,
+						cust_country)
+VALUES(1000000008,
+'Toy Land',
+'123 Any Street',
+'New York',
+'NY',
+'11111',
+'USA');
+
+CAUTION: Omitting Columns
+You may omit columns from an INSERT operation if the table definition so allows. 
+ONE of the following conditions must exist:
+
+* The column is defined as allowing NULL values (no value at all). 
+
+* A default value is specified in the table definition. This means the default value will be used if no value is specified. 
+
+If neither of these ^^ conditions are met, the DBMS will throw an error and the the insert will not happen. 
+
+Inserting Retrieved Data 
+
+You can also insert the result of a SELECT statement into a table. 
+This is known as INSERT SELECT. 
+
+
+For this next part, lets make a copy of of Customers
+
+CREATE TABLE Customers2 LIKE Customers;
+
+Behold, an INSERT SELECT !
+
+INSERT INTO Customers2(cust_id,
+						cust_contact,
+						cust_email,
+						cust_name,
+						cust_address,
+						cust_city,
+						cust_state,
+						cust_zip,
+						cust_country
+						)
+SELECT  cust_id,
+		cust_contact,
+		cust_email,
+		cust_name,
+		cust_address,
+		cust_city,
+		cust_state,
+		cust_zip,
+		cust_country
+FROM Customers;
+
+TIP: Column Names in INSERT SELECT :
+
+The above example ^^ uses INSERT SELECT  to import all the data from specified Columns from Customers into Customers2.
+But there is no requirement that the column names match. 
+The DBMS does not even pay attention to the column names returned by the SELECT. 
+Rather, the column positions are used, so the first column in in the SELECT statement, regardless of name, will be used to populate the first specified table column. 
+And so on.
+
+*************
+Alternatively, if you know you want to fully copy a table, you can do the following:
+
+CREATE TABLE Customers2 LIKE Customers;
+
+INSERT INTO Customers2 SELECT * FROM Customers;
+
+ignore this for the rest of the INSERT SELECT lesson
+*************
+
+The SELECT statement used in an INSERT SELECT can include a WHERE clause to filter the data to be inserted. 
+
+TIP: Inserting Multiple Rows 
+INSERT usually inserts only a single row. To insert multiple rows, you must execute multiple INSERT statements.
+ The exception to this rule is INSERT SELECT, 
+ which can be used to insert multiple rows with a single statement. 
+ Whatever the SELECT statement return will be inserted from the INSERT. 
+ 
+ Copying From One Table to Another 
+ There is another form of data insertion that does not use INSERT statements at all. 
+ To copy the contents of a table into a brand new table that is created on the fly, 
+ use CREATE SELECT 
+ Note: This ^^ has diff syntax or does not work on a few DBMSs
+ 
+ CAUTION: This can overwrite an already existing table. 
+ 
+ Examples:
+ 
+CREATE TABLE Orders2 AS SELECT * FROM Orders;
+ 
+CREATE TABLE OrderItems2 AS SELECT * FROM OrderItems;
+
+This copies everything SELECTed into the new table.
+If you only want to copy a subset of available columns, you can specify them instead of using the * wildcard character. 
+
+Here are some things to consider when using SELECT INTO:
+
+* Any SELECT options and clauses may be used, including WHERE and GROUP BY. 
+
+* Joins may be used to insert data from multiple tables. 
+
+* Data may only be inserted into a singel table regardless of how many tables the data was retrieved from. 
+
+TIP: The above described technique is a great way to make copies of tables before experimenting with new SQL statements. 
+By making a copy first, you'll be able to test your SQL on that copy instead of live data. 
+
+CHALLENGES: 
+
+SELECT * FROM Customers LIMIT 5;
+
+INSERT INTO Customers  (cust_id, 
+						cust_contact,
+						cust_email,
+						cust_name,
+						cust_address,
+						cust_city,
+						cust_state,
+						cust_zip,
+						cust_country
+						)
+VALUES (1,
+'Big Tuck',
+NULL,
+'Tucks Buck n Ducks',
+'ur moms house',
+'Denver',
+'Horny',
+'808888-2',
+'US of A'
+);
+
+CREATE TABLE Orders2 AS SELECT * FROM Orders;
+ 
+CREATE TABLE OrderItems2 AS SELECT * FROM OrderItems;
+
+LESSON 16: UPDATING AND DELETING DATA
+
+UPDATE can be used in 2 ways:
+
+*To update specific rows in a table
+
+*To update all rows in a table
+
+CAUTION: Don't Omit the WHERE Clause
+It is VERY easy to mistakenly update every row in your table. 
+Triple check your work before executing UPDATE statements.
+There may be security privileges required to use UPDATE for this very reason. 
+
+The UPDATE statement is very easy to use. Some would say too easy. 
+The basic format of an UPDATE statement is made up of three parts:
+
+*The table to be updated
+
+*The column names and their new values
+
+*The filter condition that determines which rows should be updated
+
+Example: 
+UPDATE Customers
+SET cust_email = 'kim@thetoystore.com'
+WHERE cust_id = 10000000005;
+
+Example for updating multiple columns: 
+UPDATE Customers
+SET cust_contact = 'Sam Roberts',
+cust_email = 'kim@thetoystore.com'
+WHERE cust_id = 10000000005;
+
+TIP: Using Subqueries in an UPDATE Statement 
+Subqueries may be used in UPDATED statements, enabling you to update columns with data retrieved from a SELECT statement. 
+
+TIP: The FROM Keyword: 
+Some DBMSs support a FROM clause in the UPDATE statement. 
+This is used to update the rows in one table with data from another table. 
+
+To delete a column's value, you can set it to NULL, if the table is set to allow this.
+
+DELETING DATA 
+
+DELETE can be used int two ways: 
+
+*To delete specific rows from a table. 
+
+*To delete all rows from a table. 
+
+CAUTION: 
+Everything about security permissions and triple checking about UPDATE applies here as well. 
+
+Example: 
+DELETE FROM Customers
+WHERE cust_id = 1000000006
+
+TIP: Foreign Keys Are Your Friend: 
+Joins work by having two tables with a common field. 
+You can have the DBMS enforce this relationship by using foreign keys. 
+When foreign keys are present, the DBMS uses them to enforce referential integrity. 
+For example, if you tried to insert a new product into the Products table, the DBMS would not allow you to insert it with an unknown vendor ID, 
+because the vend_id column is connected to the Vendors table as a foreign key. 
+
+A nice side effect of this ^^ behavior is that the DBMS usually prevents deletion of rows that are needed for a relationship. 
+If you tried to delete a product from Products that was used in existing orders in OrderItems, 
+that DELETE statement would throw an error and would be aborted. 
+
+Always define your foriegn keys! 
+
+It is a best practice to put the FROM keyword following your DELETE. This is required on some DBMSs and ensures your code is as portable as possible! 
+
+DELETE takes no column names or wildcard characters. 
+DELETE deletes entire rows, not columns. 
+to delete a specific column, use UPDATE.
+
+DELETE only deletes some or all rows, but never deletes the table itself. 
+to delete a table, use DROP. 
+
+If you want to delete all rows from a table and want to do it quickly, 
+use TRUNCATE TABLE. It accomplishes the same thing as DELETE, but does it much
+more quickly because data changes are not logged. 
+
+
+****************************************
+Guidelines For Updating and Deleting Data
+****************************************
+
+* Again, IF YOU OMIT THE WHERE CLAUSE THE UPDATE/DELETE WILL BE APPLIED TO EVERY ROW IN THE TABLE 
+
+* Make sure every table has a primary key and use it as the WHERE clause whenever possible 
+
+* Before you use a WHERE clause with an UPDATE/DELETE, test it out with SELECT to make sure it is finding the correct records 
+
+* Use database-enforced referential integrity (Lesson 12) so that the DBMS will not allow the deletion of rows that have data in other tables related to them
+
+* Many DBMSs allow admins to impose restrictions that prevent the execution of UPDATE/DELETE without a WHERE clause. Use this feature if you can. 
+
+CHALLENGES
+
+UPDATE Vendors2
+SET vend_state = LOWER(vend_state)
+WHERE vend_id = 'BRE02';
+
+SELECT *
+FROM Vendors2;
+
+DELETE
+FROM Customers
+WHERE cust_id = 1;
+
+SELECT * 
+FROM Customers
+WHERE cust_id = 1;
+
+LESSON 17 CREATING AND MANUPULATING TABLES
+
+There are 2 ways to create database tables:
+
+* An administrative tool that you can use to create and manage database tables interactively. DBMS specific
+
+* Tables may also be manipulated directly with SQL statements
+
+To create tables programatically, use the CREATE TABLE 	sql statement. 
+CAUTION: The syntax for creating tables varies from DBMS to DBMS. Refer to docs 
+
+Basic Table Creation 
+
+CREATE TABLE requires the following inputs:
+
+* The name of the new table specified after the keywords CREATE TABLE 
+
+* The name and definition of the table columns, separated by commas. 
+
+* Some DBMSs require that you also specify thetable location 
+
+Example: 
+CREATE TABLE Products
+(
+	prod_id 	CHAR(10) 	  NOT NULL,
+    vend_id 	CHAR(10) 	  NOT NULL, 
+    quantity 	CHAR(10)	  NOT NULL 	DEFAULT 1,
+    prod_name 	CHAR(254) 	  NOT NULL, 
+    prod_price 	DECIMAL(8,2)  NOT NULL,
+    prod_desc 	VARCHAR(1000) NULL
+);
+
+TIP: Statement Formatting
+The column instructions are broken up by column. SQL ignores white space, which allows for neat formatting like above. 
+
+SQL requires the name to be unique. If the table name already exists, it will throw an error instead of overwriting it. 
+If you want to overwrite it, manually delete the table first 
+
+Nulls
+
+Every column must be NULL or NOT NULL. It either accepts NULL values or it does not. 
+Some DBMSs require NULL to be explicitly declared. Some treat the absence of NOT NULL as permission to NULL. 
+
+Only NOT NULL columns can be Primary Keys
+
+Specifying Default Values
+
+Default values are often used for date or time stamp columns. 
+For MySQL DEFAULT CURRENT_DATE() 
+
+Refer to page 155 for DBMS specific current date functions. 
+
+Updating Tables 
+
+ALTER TABLE is the keyword to update table definitions. 
+All DBMSs support ALTER TABLE, but what they allow you to change varies greatly between DBMSs. 
+
+Some points to consider when using ALTER TABLE: 
+
+*Ideally tables should never be altered after they contain data. You should take the time to anticipate future needs during the table design process to avoid this. 
+
+*All DBMSs allow you to add columns to existing tables, although some restrict the datatypes that may be added (as well as NULL and DEFAULT usage). 
+
+*Many DBMSs do not allow you to remove or change columns in a table 
+
+*Most DBMSs allow you to rename columns 
+
+*Many DBMSs restrict the kinds of changes you can make on columns that are populated and enforce fewer restriction on unpopulated columns. 
+
+Examples: 
+
+ALTER TABLE Vendors
+ADD vend_phone CHAR(20); 
+
+ALTER TABLE Vendors 
+DROP COLUMN vend_phone;
+
+Complex table structure changes usually require a manual move process involving these steps: 
+
+*Create a new table with the new column layout. 
+
+*Use the INSERT SELECT statement (Lesson 15) to copy the data from the old table to the new table. 
+Use conversion functions and calculated fields if needed. 
+
+*Verify that the new table contains the desired data. 
+
+*Rename the old table (or delete it if SURE and brave)
+
+*Rename the new table witht the name previously used by the old table 
+
+*Re-create any triggers, stored procedures, indexes, and foreign keys as needed. 
+
+Deleting Tables 
+
+DROP TABLE
+
+Example: 
+DROP TABLE CustCopy; 
+
+There is no confirmation. 
+There is no undo. 
+Be careful. 
+
+Renaming Tables
+
+Pretty standard feature across all DBMSs. 
+The implementation is different across all of them tho. Refer to docs. 
+
+CHALLENGES
+
+SELECT * FROM Vendors2;
+
+ALTER TABLE Vendors2 
+ADD vend_web VARCHAR(50);
+
+UPDATE Vendors2
+SET vend_web = 'www.getrichquick.com'
+WHERE vend_id = 'BRE02';
+
+LESSON 18: USING VIEWS
+
+Views are virtual tables.
+Unlike tables that contain data, views simply contain queries that dynamically retrieve data when used. 
+
+Take a look at this example without views: 
+
+SELECT cust_name, cust_contact
+FROM Customers, Orders, OrderItems
+WHERE Customers.cust_id = Orders.cust_id
+AND OrderItems.order_num = Orders.order_num
+AND prod_id = 'RGAN01';
+
+This ^^ query is used to retrieve customers who had ordered a specific product. 
+Anyone needing this data would need to understand the table structure, as well as how to create the query and join the tables. 
+To retrieve the same data for another product or multiple products, the WHERE clause needs to be modified. 
+
+Now imagine you could wrap the entire query in a virtual table called ProductCustomers. 
+You could do the following to retrieve the same data
+
+Example with view: 
+
+SELECT cust_name, cust_contact
+FROM ProductCustomers
+WHERE PROD_ID = 'RGAN01';
+
+ProductCustomers is a view. 
+As a view, it does not contain any columns or data. Instead it contains a query. 
+The same query used above to join the tables properly. 
+
+Good news! View creation syntax is pretty consistent across all DBMSs. 
+
+Why Use Views? 
+
+*To reuse SQL statements 
+
+*To simplify complex SQL operations. After the query is written, it can be reused easily,
+without having to know the details of the underlying query
+
+*To expose parts of a table instead of complete tables. 
+
+*To secure data. Users can be given access to specific subsets of tables instead of entire tables
+
+*To change data formatting and representation. Views can return data formatted and presented differently from their underlying tables. 
+
+
+For the most part, after the view is created it can be used the same way as a table. 
+They can do SELECT operations, filter and sort data, join views to other views or tables. 
+There are some restrictions on adding and updating data, but it is do-able, DBMS dependant
+
+CAUTION: Performance issues. 
+Because views contain no data, any retrievel needed to execute the query must be processed every time the view is used. 
+If you create complex views, you may find that performance is dramatically degraded. 
+Be sure to test execution before deploying applications that use views extensively. 
+
+View Rules and Restrictions: 
+
+Unfortunately, restrictions tend to be DBMS specific, check the docs on your specific DBMS to know more. 
+Here are some of the most common restrictions governing view creation and usage: 
+
+*Views must be uniquely named
+
+*There is no limit to the number of views that can be created
+
+*To create views, you must have security access. This is granted by the DBMS admin
+
+*Views can be nested: Views can be built using a query that retrieves data from another view. 
+The exact number varies from DBMS to DBMS, and may degrade performance 
+
+*Many DBMSs prohibit the use of the ORDER BY clause in view queries
+
+*Some DBMSs require that every column returned be named. This requires the use of aliases if returning calculated fields 
+
+*Views cannot be indexed, nor can they have triggers or default values 
+
+*Some DBMSs like SQLite, treat views as read-only, no updating or deleting 
+refer to DBMS docs to check if this is the case for yours 
+
+*Some DBMSs allow you to create views that do not allow rows to be inserted or updated if that 
+insertion or update will cause the row to no longer be part of the view. 
+For example, if checking for customers with email addresses, removing that email address would make the customer fall out of the view, 
+therefore it is not allowed. 
+Refer to your docs to check this behavior for your DBMS 
+
+
+Creating Views: 
+
+CREATE VIEW is the command to create views. 
+
+This can only be used to create a view that does not already exist. 
+
+To remove a view, use a DROP statement
+
+DROP VIEW viewname; 
+
+To overwrite or update a view, you must first DROP it then recreate it 
+
+CREATE VIEW Example: 
+
+***
+CREATE VIEW ProductCustomers AS 
+SELECT cust_name, cust_contact, prod_id 
+FROM Customers, Orders, OrderItems 
+WHERE Customers.cust_id = Orders.cust_id 
+AND OrderItems.order_num = Orders.order_num; 
+***
+
+This ^^ creates a view named ProductCustomers, which joins three tables to return a list of all customers 
+who have ordered any prodcut. If you were to use 
+SELECT * FROM ProductCustomers, you'd list every customer who ordered anything. 
+
+To retrieve a list of customers who ordered a certain product, you can use this 
+Practical Example: 
+
+***
+SELECT cust_name, cust_contact
+FROM ProductCustomers
+WHERE prod_id = 'RGAN01';
+***
+
+Creating Reusable Views:
+It is a good idea to create views that are not tied to specific data. 
+the view itself is not tied to any specific product, allowing the implementation of the view to add the WHERE clause. 
+Expanding the scope allows it to be re-used, and eliminates the redundancy of multiple similar views. 
+
+
+Using Views to Reformat Retrieved Data 
+
+Consider this example:
+
+SELECT RTRIM(vend_name) + ' (' + RTRIM (vend_country) + ')'
+	AS vend_title
+FROM Vendors
+ORDER BY vend_name;
+
+If you regularly need results in this ^^ format, 
+why not turn it into a view? 
+
+CREATE VIEW VendorLocations AS
+SELECT RTRIM(vend_name) + ' (' + RTRIM(vend_country) + ')'
+	AS vend_title
+FROM Vendors;
+
+From there, if you want all mailing lables, you can simply use 
+
+SELECT * FROM VendorLocations; 
+
+
+Using Views to Filter Unwanted Data:
+Views are useful for applying common WHERE clauses. 
+For example, you might want to define CustomerEmailList view so that it filters out customers without email addresses. 
+To do this, use the following statement: 
+
+CREATE VIEW CustomerEmailList AS 
+SELECT cust_id, cust_name, cust_email
+FROM Customers
+WHERE cust_email IS NOT NULL;
+
+From there you can use 
+
+SELECT * 
+FROM CustoemrEmailList 
+
+to get all customers who have an email
+
+NOTE: Where clauses: 
+If a where clause is used when retrieving data from a view, 
+then the two WHERE clauses will be combined automatically. 
+
+
+Using Views With Calculated Fields
+
+Consider this calculated field from Lesson 7:
+
+SELECT prod_id,
+ quantity,
+ itemPprice,
+ quantity*item_price AS expanded_price
+ FROM OrderItems
+ WHERE order_num = 30008
+ 
+ To turn this into a view, do the following: 
+ 
+ CREATE VIEW OrderItemsExapnded AS
+ SELECT prod_id,
+ quantity,
+ itemPprice,
+ quantity*item_price AS expanded_price
+ FROM OrderItems;
+ 
+ Then retrieve the wanted info with this: 
+ 
+ SELECT * 
+ FROM OrderItemsExpanded
+ WHERE order_num = 30008
+ 
+ CHALLENGES: 
+ 
+CREATE VIEW CustomersWithOrders AS
+SELECT Customers.cust_id,
+cust_name,
+cust_address,
+cust_city,
+cust_state,
+cust_zip,
+cust_country,
+cust_contact,
+cust_email
+FROM Customers, Orders
+WHERE Customers.cust_id = Orders.cust_id;
+
+SELECT * FROM CustomersWithOrders;
+
+
+
+LESSON 19: WORKING WITH STORED PROCEDURES
+
+Stored procedures are simply collections of one or more SQL statements stored for future use. 
+
+Why use stored procedures:
+
+*To simplify complex operations by encapsulating processes into a single easy-to-use unit 
+
+*To ensure data consistency by not duplicating processes over and over. 
+If everyone uses the same stored procedures, the same code is used by all
+
+*To prevent errors; The more steps needed, the greater likelyhood of inducing errors.
+
+*To simplify change management. If tables, column names, or business logic changes, then only the stored
+procedure needs to be updated. No one else will even need to be aware that changes were made. 
+
+*To ensure security. This is an extension of the preceding reason. Retstricting access to underlying data via stored procedures reduces the chance of 
+data corruption. 
+
+*To do less work to process the command. Because stored procedures are stored in a compliled form, the DBMS has to do less work,
+increasing system performance. 
+
+*There are SQL language elements and features that care available only within single requests.
+ Stored procedures can use them for this reason.
+
+Basically: Simplicity, Security, and Performance. 
+
+Downsides:
+
+Stored procedure syntax varies wildly from DBMS to DBMS. 
+They take more skill and experience to write. 
+
+Because of the above ^^ They are often restricted to database admins. 
+
+BUT 
+
+Even if you cannot write them, you can still use them. 
+Executing them and writing them often require different clearance. 
+
+The command to run a stored procedure is simply 
+EXECUTE
+
+Example (does not run):
+
+EXECUTE AddNew Product ('JTS01',
+	'Stuffed Eiffel Tower',
+    6.49,
+    'Plush stuffed toy with the text La Tour Eiffel in red and white and blue');
+    
+This example ^^ adds a new product to the Products table. 
+It takes for parameters to match expected variables within the stored procedure,
+which are described in the stored procedure itself. 
+It adds a new row to the Products table and assigns these passed attributes to the appropriate columns. 
+
+The store procedure procedurally generates new primary key. 
+
+CHALLENGES: 
+
+None. Maybe circle back and write a stored procedure?
+
+LESSON 20: MANAGING TRANSACTION PROCESSING
+
+Transaction processing is used to maintain database integrity by ensuring that batches of SQL operations execute completely or not at all. 
+
+Take the example of adding an order. This affects both the Orders table and the OrderItems table, which is linked referentially. 
+
+The process would look like this:
+
+*Check if the customer is already in the DB, if not, add them. 
+
+*Retrieve the customer's ID 
+ 
+ *Add a row to the Orders table associating it with the customers ID. 
+ 
+ *Retrieve the new order ID assigned in the Orders table. 
+ 
+ *Add a row to the Orders table associating it with the customer ID 
+ 
+ *Add one row tot the OrderItems table for each item ordered, associating it with the Orders table by the retrieved ID,
+ and with the Products table by product ID 
+ 
+ If a Database failure happens during any one of these steps, such as Out Of Disk Space, or a Security Error, there is a risk of duplication. 
+ 
+ The process should happen completely or not at all. 
+ 
+ Transaction Processing is a mechanism used to manage sets of SQL operation that must be executed in batches to ensure DB's never contain the results of partial operations. 
+ 
+ If no errors occur, then all of the processes are written to the DB. 
+ 
+ If an error does occur, then a rollback (undo) can occur to restore the db to a known and safe state. 
+ 
+ Keywords:
+ 
+ Transaction - a block of SQL statements 
+ 
+ Rollback - The process of undoing specified SQL statements 
+ 
+ Commit - Writing unsaved SQL statements to the database tables
+ 
+ Savepoint - A temporary placeholder in a transaction set to which you can issue a rollback, as opposed to rolling back the entire transaction. 
+ 
+ Transaction processing can be used to manage INSERT, UPDATE, and DELETE statements.
+ You cannot roll back SELECT, CREATE, or DROP statements. 
+ 
+ The key to managing transactions involves breaking your SQL statements into logical chunks and explicitly stating when data should be rolled back and when it should not. 
+ 
+ All DBMSs do transactions differently, refer to your documentation. 
+ 
+ Most implementations don't have an explicit end of the transaction. Rather, the transactione exists until someone terminates it 
+ with a ROLLBACK or a COMMIT. 
+ 
+ Usually SQL statements are executed and written directly to the db tables. This is known as an 
+ implicit commit, and happens automatically. 
+ 
+ Within a transaction block, commits might not occur implicitly. This too, is a DBMS specific thing. 
+ 
+ To force an explicit commit, use the COMMIT statement. 
+ 
+ INSERT INTO Orders (order_num, order_date, cust_id)
+VALUES (12345, CURDATE(), 1);
+
+
+INSERT INTO OrderItems (
+order_num,
+order_item,
+prod_id,
+quantity,
+item_price
+)
+VALUES (
+12345,
+45,
+'BR01',
+5,
+2.99
+);
+    
+START TRANSACTION {
+READ WRITE
+}
+
+BEGIN 
+DELETE OrderItems WHERE order_num = 12345
+DELETE Orders WHERE order_num = 12345
+COMMIT TRANSACTION
+
+START TRANSACTION;
+DELETE FROM OrderItems WHERE order_num = 12345;
+DELETE FROM Orders WHERE order_num = 12345;
+COMMIT;
+
+SELECT * FROM OrderItems;
+
+LESSON 21: USING CURSORS
+
+results set: the rows returned that match an SQL statement.
+
+cursor: a db query stored on the DBMS server. Not a SELECT statement, but the result set retrieved by that statement. 
+
+Once a cursor is stored applications can go up and down it, vs just a SELECT statement which is not ordered and has a harder time being parsed. 
+
+Common features of cursors include:
+
+*The ability to flag a cursor as read-only, so that data can be read but not updated or deleted. 
+
+*The ability to control the direction of operations that can be performed, such as forward, backward, first, last, absolute position, relative position, etc. 
+
+*The ability to flag some columns as editable and some as not. 
+
+*Scope specs so as to make the cursor accessible to the stored procedure that created it or to all requests. 
+
+*Instructing the DBMS to make a copy of the data as opposed to pointing at the live data in the table, so the data does not change between the time the cursor is opened and the time it is accessed. 
+
+Working with Cursors: 
+
+Using cursors involves several distinct steps: 
+
+1: Declare the cursor (define the SELECT statement to be used and any cursor options) 
+
+2: Open the cursor for use. This actually retrieves the data defined in the SELECT statement 
+
+3: Once the cursor is populated with data, individual rows can be retrieved as needed. 
+
+4: When it is done, the cursor must be closed. And possibly de-allocated. 
+
+Creating cursors:
+
+Cursors are created using the DECLARE statement. 
+
+Example: 
+
+DECLARE CustCursor CURSOR
+FOR
+SELECT * FROM Customers
+WHERE cust_email IS NULL;
+
+Cursors are opened using the OPEN CURSOR statement. 
+
+Example
+
+DECLARE TYPE CustCursor IS REF CURSOR
+	RETURN Customers%ROWTYPE;
+DECLARE CustRecord Customers%ROWTYPE
+BEGIN
+	OPEN CustCursor;
+    FETCH CustCursor INTO CustRecord;
+    CLOSE CustCursor;
+END;
+
+
+
+
+*/
+
